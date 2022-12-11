@@ -26,6 +26,9 @@ export const updateUser = async (req, res) => {
     const id = req.params.id;
     const { user_name, user_role, email, user_password } = req.body;
     const response = await pool.query('UPDATE users SET user_name = ?, user_role = ?, email = ?, user_password = ? WHERE user_id = ?', [user_name, user_role, email, user_password, id]);
+    if (!response[0].affectedRows) {
+      return res.status(404).json({Success: false, message: 'User not found'});
+    }
     res.status(200).json({
       success: true,
       message: 'User updated successfully',
