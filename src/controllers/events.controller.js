@@ -1,20 +1,23 @@
 import { pool } from '../db.js';
 import { getAll, getById, create, remove } from '../helper/methods.js';
 
+const tableName = 'events';
+const tableId = 'event_id';
+
 //method that gets all events from the database
 export const getEvents = (req, res) => {
-  getAll(req, res, 'events');
+  getAll(req, res, tableName);
 };
 
 //method that gets an event by id from the database
 export const getEventById = (req, res) => {
-  getById(req, res, 'events', 'event_id');
+  getById(req, res, tableName, tableId);
 };
 
 //method that creates a new event in the database
 export const createEvent = (req, res) => {
   const { event_name, img, is_active } = req.body;
-  create(req, res, 'events', 'event_name, img, is_active', [event_name, img, is_active]);
+  create(req, res, tableName, 'event_name, img, is_active', [event_name, img, is_active]);
 };
 
 //method that updates an event by id in the database
@@ -40,5 +43,5 @@ export const updateEvent = async (req, res) => {
 
 //method that deletes an event by id from the database
 export const deleteEvent = (req, res) => {
-  remove(req, res, 'events', 'event_id');
+  remove(req, res, tableName, tableId);
 };
