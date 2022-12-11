@@ -9,6 +9,7 @@ export const pool = createPool({
   database: 'bd2_202315_api-db'
 }); 
 
+//For local testing
 // export const pool = createPool({
 //   host: 'localhost',
 //   port: '3306',
