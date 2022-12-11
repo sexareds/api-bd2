@@ -1,4 +1,3 @@
-import { pool } from '../db.js';
 import { getAll, getById, create, remove } from '../helper/methods.js';
 
 const tableName = 'events';
@@ -21,24 +20,10 @@ export const createEvent = (req, res) => {
 };
 
 //method that updates an event by id in the database
-export const updateEvent = async (req, res) => {
+export const updateEvent = (req, res) => {
   const { event_name, img, is_active } = req.body;
-  try {
-    const response = await pool.query('UPDATE events SET event_name = ?, img = ?, is_active = ? WHERE event_id = ?', [event_name, img, is_active, req.params.id]);
-    if (!response[0].affectedRows) {
-      return res.status(404).json({success: false, message: 'Event not found'});
-    }
-    res.status(200).json({
-      success: true,
-      message: 'Event updated successfully',
-      body: {
-        event: { event_name, img, is_active }
-      }
-    });
-  } catch (e) {
-    console.log(e);
-    res.status(500).json('Internal Server Error');
-  }
+  const columns = 'event_name = ?, img = ?, is_active = ?';
+  update(req, res, tableName, tableId, [event_name, img, is_active], columns);  
 };
 
 //method that deletes an event by id from the database

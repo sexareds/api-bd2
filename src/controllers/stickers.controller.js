@@ -1,4 +1,3 @@
-import { pool } from '../db.js';
 import { getAll, getById, create, remove } from '../helper/methods.js';
 
 const tableName = 'stickers';
@@ -21,24 +20,10 @@ export const createSticker = (req, res) => {
 };
 
 //a method that updates a sticker in the database
-export const updateSticker = async (req, res) => {
-  try {
-    const { player_id, img, height, weight, event_id, team_id, position, appearance_rate } = req.body;
-    const response = await pool.query('UPDATE stickers SET player_id = ?, img = ?, height = ?, weight = ?, event_id = ?, team_id = ?, position = ?, appearance_rate = ? WHERE sticker_id = ?', [player_id, img, height, weight, event_id, team_id, position, appearance_rate, req.params.id]);
-    if (!response[0].affectedRows) {
-      return res.status(404).json({Success: false, message: 'Sticker not found'});
-    }
-    res.status(200).json({
-      Success: true, 
-      message: 'Sticker updated successfully',
-      body: {
-        sticker: { player_id, img, height, weight, event_id, team_id, position, appearance_rate }
-      }
-    });
-  } catch (e) {
-    console.log(e);
-    res.status(500).json('Internal Server Error');
-  }
+export const updateSticker = (req, res) => {
+  const { player_id, img, height, weight, event_id, team_id, position, appearance_rate } = req.body;
+  const columns = 'player_id = ?, img = ?, height = ?, weight = ?, event_id = ?, team_id = ?, position = ?, appearance_rate = ?';
+  update(req, res, tableName, tableId, columns, [player_id, img, height, weight, event_id, team_id, position, appearance_rate]);
 };
 
 //a method that deletes a sticker by id from the database

@@ -1,5 +1,4 @@
-import { pool } from '../db.js';
-import { getAll, getById, create, remove } from '../helper/methods.js';
+import { getAll, getById, create, update, remove } from '../helper/methods.js';
 
 const tableName = 'teams';
 const tableId = 'team_id';
@@ -21,24 +20,10 @@ export const createTeam = (req, res) => {
 }
 
 //method that updates a team by id in the database
-export const updateTeam = async (req, res) => {
+export const updateTeam = (req, res) => {
   const { team_name, event_id, badge } = req.body;
-  try {
-    const response = await pool.query(`UPDATE ${tableName} SET team_name = ?, event_id = ?, badge = ? WHERE ${tableId} = ?`, [team_name, event_id, badge, req.params.id]);
-    if (!response[0].affectedRows) {
-      return res.status(404).json({success: false, message: 'Team not found'});
-    }
-    res.status(200).json({
-      success: true,
-      message: `${tableName} updated successfully`,
-      body: {
-        team: { team_name, event_id, badge }
-      }
-    });
-  } catch (e) {
-    console.log(e);
-    res.status(500).json('Internal Server Error');
-  }
+  const columns = 'team_name = ?, event_id = ?, badge = ?';
+  update(req, res, tableName, tableId, [team_name, event_id, badge], columns);
 };
 
 //method that deletes a team by id from the database
