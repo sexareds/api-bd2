@@ -31,7 +31,7 @@ export async function getById(req, res, table, table_id) {
 //a method that creates a new element in a specific table in the database
 export async function create(req, res, table, columns, body) {
   try {
-    const response = await pool.query(`INSERT INTO ${table} (${columns}) VALUES (?)`, [body]);
+    await pool.query(`INSERT INTO ${table} (${columns}) VALUES (?)`, [body]);
     res.status(201).json({
       success: true,
       message: `${table} created successfully`,
