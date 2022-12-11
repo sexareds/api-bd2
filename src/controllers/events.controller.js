@@ -1,32 +1,33 @@
 import { getAll, getById, create, remove } from '../helper/methods.js';
 
-const tableName = 'events';
-const tableId = 'event_id';
+const TABLE_NAME = 'events';
+const TABLE_ID = 'event_id';
+const COLUMNS = 'event_name, img, is_active';
 
 //method that gets all events from the database
 export const getEvents = (req, res) => {
-  getAll(req, res, tableName);
+  getAll(req, res, TABLE_NAME);
 };
 
 //method that gets an event by id from the database
 export const getEventById = (req, res) => {
-  getById(req, res, tableName, tableId);
+  getById(req, res, TABLE_NAME, TABLE_ID);
 };
 
 //method that creates a new event in the database
 export const createEvent = (req, res) => {
   const { event_name, img, is_active } = req.body;
-  create(req, res, tableName, 'event_name, img, is_active', [event_name, img, is_active]);
+  create(req, res, TABLE_NAME, COLUMNS, [event_name, img, is_active]);
 };
 
 //method that updates an event by id in the database
 export const updateEvent = (req, res) => {
   const { event_name, img, is_active } = req.body;
   const columns = 'event_name = ?, img = ?, is_active = ?';
-  update(req, res, tableName, tableId, [event_name, img, is_active], columns);  
+  update(req, res, TABLE_NAME, TABLE_ID, [event_name, img, is_active], columns);  
 };
 
 //method that deletes an event by id from the database
 export const deleteEvent = (req, res) => {
-  remove(req, res, tableName, tableId);
+  remove(req, res, TABLE_NAME, TABLE_ID);
 };
