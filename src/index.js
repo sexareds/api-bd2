@@ -21,7 +21,7 @@ app.use('/api', stickersRoutes);
 app.use('/api', gamesRoutes);
 app.use('/api', promotionsRoutes);
 
-app.get('/', initialPage);
+app.use('/', initialPage);
 app.use(notFound);
 
 app.listen(3000);
