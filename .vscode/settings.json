@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/009f5a5e-a8c3-49fb-bbef-13e0deea10bc/appservices/subscriptions/009f5a5e-a8c3-49fb-bbef-13e0deea10bc/resourceGroups/offsideBD2/providers/Microsoft.Web/sites/offsideBD2",
+    "appService.deploySubpath": "."
+}
