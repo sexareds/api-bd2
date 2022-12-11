@@ -65,7 +65,7 @@ CREATE TABLE inventory(
 );
 
 CREATE TABLE games(
-	game_id INT NOT NULL,
+	game_id INT NOT NULL AUTO_INCREMENT,
 	event_id INT NOT NULL,
 	team_1_id INT NOT NULL,
 	team_2_id INT NOT NULL,
