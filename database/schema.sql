@@ -9,7 +9,7 @@ CREATE TABLE users(
 	PRIMARY KEY(user_id)	
 );
 
-CREATE TABLE EVENTS(
+CREATE TABLE events(
 	event_id INT NOT NULL AUTO_INCREMENT,
 	event_name VARCHAR(255) NOT NULL,
 	img TEXT NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE teams(
 	created_at TIMESTAMP NOT NULL,
 	updated_at TIMESTAMP NOT NULL,
 	PRIMARY KEY(team_id, event_id),
-	FOREIGN KEY(event_id) REFERENCES EVENTS(event_id) ON UPDATE CASCADE ON DELETE RESTRICT
+	FOREIGN KEY(event_id) REFERENCES events(event_id) ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
 CREATE TABLE stickers(
@@ -38,12 +38,12 @@ CREATE TABLE stickers(
 	weight DECIMAL(4, 1) NOT NULL,
 	event_id INT NOT NULL,
 	team_id INT NOT NULL,
-	position VARCHAR(255) NOT NULL CHECK(position IN ('goalkeeper', 'defender', 'midfielder', 'forward')),
+	POSITION VARCHAR(255) NOT NULL CHECK(POSITION IN ('goalkeeper', 'defender', 'midfielder', 'forward')),
 	appearance_rate FLOAT NOT NULL,
 	created_at TIMESTAMP NOT NULL,
 	updated_at TIMESTAMP NOT NULL,
 	PRIMARY KEY(sticker_id),
-	FOREIGN KEY(event_id) REFERENCES EVENTS(event_id) ON UPDATE CASCADE ON DELETE RESTRICT,
+	FOREIGN KEY(event_id) REFERENCES events(event_id) ON UPDATE CASCADE ON DELETE RESTRICT,
 	FOREIGN KEY(team_id) REFERENCES teams(team_id) ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
@@ -64,13 +64,14 @@ CREATE TABLE inventory(
 	FOREIGN KEY(user_id) REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
-CREATE TABLE matches(
+CREATE TABLE games(
+	game_id INT NOT NULL,
 	event_id INT NOT NULL,
 	team_1_id INT NOT NULL,
 	team_2_id INT NOT NULL,
 	matched_at DATE NOT NULL,
-	PRIMARY KEY(event_id, team_1_id, team_2_id, matched_at),
-	FOREIGN KEY(event_id) REFERENCES EVENTS(event_id) ON UPDATE CASCADE ON DELETE RESTRICT,
+	PRIMARY KEY(game_id),
+	FOREIGN KEY(event_id) REFERENCES events(event_id) ON UPDATE CASCADE ON DELETE RESTRICT,
 	FOREIGN KEY(team_1_id) REFERENCES teams(team_id) ON UPDATE CASCADE ON DELETE RESTRICT,
 	FOREIGN KEY(team_2_id) REFERENCES teams(team_id) ON UPDATE CASCADE ON DELETE RESTRICT
 );
@@ -84,15 +85,12 @@ CREATE TABLE players(
 	FOREIGN KEY(team_id) REFERENCES teams(team_id) ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
-CREATE TABLE players_matches(
-	event_id INT NOT NULL,
-	team_1_id INT NOT NULL,
-	team_2_id INT NOT NULL,
-	matched_at DATE NOT NULL,
+CREATE TABLE players_games(
+	game_id INT NOT NULL,
 	player_id INT NOT NULL,
-	score INT NOT NULL,
-	PRIMARY KEY(event_id, team_1_id, team_2_id, matched_at, player_id),
-	FOREIGN KEY(event_id, team_1_id, team_2_id, matched_at) REFERENCES matches(event_id, team_1_id, team_2_id, matched_at) ON UPDATE CASCADE ON DELETE RESTRICT,
+	points INT NOT NULL,
+	PRIMARY KEY(game_id, player_id),
+	FOREIGN KEY(game_id) REFERENCES games(game_id) ON UPDATE CASCADE ON DELETE RESTRICT,
 	FOREIGN KEY(player_id) REFERENCES players(player_id) ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
