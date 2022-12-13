@@ -7,7 +7,7 @@ export async function getAll(req, res, table) {
     if (!response[0].length) {
       return res.status(404).json({success: false, message: `No ${table} found`});
     }
-    res.status(200).json(response[0]);
+    res.status(200).json({success: true, body: response[0]});
   } catch (e) {
     console.log(e);
     res.status(500).json('Internal Server Error');
@@ -78,4 +78,4 @@ export async function remove(req, res, table, table_id) {
     console.log(e);
     res.status(500).json('Internal Server Error');
   }
-}
+};
