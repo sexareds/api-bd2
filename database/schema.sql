@@ -38,7 +38,7 @@ CREATE TABLE stickers(
 	weight DECIMAL(4, 1) NOT NULL,
 	event_id INT NOT NULL,
 	team_id INT NOT NULL,
-	POSITION VARCHAR(255) NOT NULL CHECK(POSITION IN ('goalkeeper', 'defender', 'midfielder', 'forward')),
+	position VARCHAR(255) NOT NULL CHECK(position IN ('goalkeeper', 'defender', 'midfielder', 'forward')),
 	appearance_rate FLOAT NOT NULL,
 	created_at TIMESTAMP NOT NULL,
 	updated_at TIMESTAMP NOT NULL,
@@ -100,10 +100,18 @@ CREATE TABLE ads(
 	promotion_type VARCHAR(255),
 	redirect_to TEXT NOT NULL,
 	img TEXT NOT NULL,
-	description VARCHAR(255),
-	requested_quantities INT NOT NULL,
-	clicked_quantities INT NOT NULL,
+	DESCRIPTION VARCHAR(255),
 	created_at TIMESTAMP NOT NULL,
 	updated_at TIMESTAMP NOT NULL,
 	PRIMARY KEY(ad_id)
+);
+
+CREATE TABLE users_ads(
+	user_id INT NOT NULL,
+	ad_id INT NOT NULL,
+	requested_quantities INT UNSIGNED NOT NULL,
+	clicked_quantities INT UNSIGNED NOT NULL,
+	PRIMARY KEY(user_id, ad_id),
+	FOREIGN KEY(user_id) REFERENCES users(user_id) ON UPDATE CASCADE ON DELETE RESTRICT,
+	FOREIGN KEY(ad_id) REFERENCES ads(ad_id) ON UPDATE CASCADE ON DELETE RESTRICT
 );
