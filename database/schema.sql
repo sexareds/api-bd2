@@ -26,7 +26,7 @@ CREATE TABLE teams(
 	badge TEXT NOT NULL,
 	created_at TIMESTAMP NOT NULL,
 	updated_at TIMESTAMP NOT NULL,
-	PRIMARY KEY(team_id, event_id),
+	PRIMARY KEY(team_id),
 	FOREIGN KEY(event_id) REFERENCES events(event_id) ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
@@ -100,7 +100,7 @@ CREATE TABLE ads(
 	promotion_type VARCHAR(255),
 	redirect_to TEXT NOT NULL,
 	img TEXT NOT NULL,
-	DESCRIPTION VARCHAR(255),
+	description VARCHAR(255),
 	created_at TIMESTAMP NOT NULL,
 	updated_at TIMESTAMP NOT NULL,
 	PRIMARY KEY(ad_id)
