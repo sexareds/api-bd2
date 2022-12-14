@@ -30,6 +30,14 @@ CREATE TABLE teams(
 	FOREIGN KEY(event_id) REFERENCES events(event_id) ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
+-- CREATE TABLE teams_events(
+-- 	team_id INT NOT NULL,
+-- 	event_id INT NOT NULL,
+-- 	PRIMARY KEY(team_id, event_id),
+-- 	FOREIGN KEY(team_id) REFERENCES teams(team_id) ON UPDATE CASCADE ON DELETE RESTRICT,
+-- 	FOREIGN KEY(event_id) REFERENCES events(event_id) ON UPDATE CASCADE ON DELETE RESTRICT
+-- );
+
 CREATE TABLE stickers(
 	sticker_id INT NOT NULL AUTO_INCREMENT,
 	player_id VARCHAR(255) NOT NULL,
