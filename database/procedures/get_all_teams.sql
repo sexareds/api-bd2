@@ -1,0 +1,10 @@
+DROP PROCEDURE IF EXISTS get_all_teams;
+
+DELIMITER &&
+
+CREATE PROCEDURE get_all_teams()
+BEGIN
+	SELECT * FROM teams;
+END &&
+
+DELIMITER ;

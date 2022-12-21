@@ -1,0 +1,10 @@
+DROP PROCEDURE IF EXISTS get_all_events;
+
+DELIMITER &&
+
+CREATE PROCEDURE get_all_events()
+BEGIN
+	SELECT * FROM `events`;
+END &&
+
+DELIMITER ;

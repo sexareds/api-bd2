@@ -1,0 +1,10 @@
+DROP PROCEDURE IF EXISTS get_all_users;
+
+DELIMITER &&
+
+CREATE PROCEDURE get_all_users()
+BEGIN
+	SELECT * FROM users;
+END &&
+
+DELIMITER ;
