@@ -9,7 +9,7 @@
     "dev": "nodemon src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Grupo 1: Anthony Barrios, Teresa Youssef, César Rojas",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
