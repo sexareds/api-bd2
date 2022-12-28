@@ -1,33 +1,117 @@
-import { getAll, getById, create, update, remove } from '../helper/methods.js';
+import teamsServices from '../services/teams.services.js';
 
-const TABLE_NAME = 'teams';
-const TABLE_ID = 'team_id';
-const COLUMNS = 'team_name, event_id, badge';
-
-//method that gets all teams from the database
-export const getTeams = (req, res) => {
-  getAll(req, res, TABLE_NAME);
+export const getTeams = async (req, res) => {
+  try {
+    const teams = await teamsServices.getTeams();
+    if (!teams[0].length) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'No teams found'
+      });
+    }
+    res.status(200).json({ 
+      success: true, 
+      body: teams[0] 
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({ 
+      success: false, 
+      message: `Internal Server Error`, 
+      error: error.message
+    });
+  }
 };
 
-//method that gets a team by id from the database
-export const getTeamById = (req, res) => {
-  getById(req, res, TABLE_NAME, TABLE_ID);
+export const createTeam = async (req, res) => {
+  try {
+    const { body } = req;
+    if (!(body.team_name && body.badge)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Please provide all fields' 
+      });
+    }
+    const createdTeam = await teamsServices.createTeam(body);
+    if (!createdTeam[0].affectedRows) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Team not created'
+      });
+    }
+    res.status(201).json({ 
+      success: true, 
+      message: 'Team created', 
+      data: body 
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({ 
+      success: false, 
+      message: 'Internal Server Error', 
+      error: error.message 
+    });
+  }
 };
 
-//method that creates a new team in the database
-export const createTeam = (req, res) => {
-  const { team_name, event_id, badge } = req.body;
-  create(req, res, TABLE_NAME, COLUMNS, [team_name, event_id, badge]);
-}
-
-//method that updates a team by id in the database
-export const updateTeam = (req, res) => {
-  const { team_name, event_id, badge } = req.body;
-  const columns = 'team_name = ?, event_id = ?, badge = ?';
-  update(req, res, TABLE_NAME, TABLE_ID, [team_name, event_id, badge], columns);
+export const updateTeam = async (req, res) => {
+  const { body, params: { teamId } } = req;
+  if (!teamId) {
+    return res.status(400).json({ 
+      success: false,
+      message: 'Team does not exist' 
+    });
+  }
+  try {
+    const updatedTeam = await teamsServices.updateTeam(teamId, body);
+    if (!updatedTeam[0].affectedRows) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Team not updated' 
+      });
+    }
+    res.status(200).json({ 
+      success: true, 
+      message: 'Team updated', 
+      data: body
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({ 
+      success: false, 
+      message: 'Internal Server Error', 
+      error: error.message 
+    });
+  }
 };
 
-//method that deletes a team by id from the database
-export const deleteTeam = (req, res) => {
-  remove(req, res, TABLE_NAME, TABLE_ID);
+export const deleteTeam = async (req, res) => {
+  const { params: { teamId } } = req;
+
+  if (!teamId) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Team does not exist' 
+    });
+  }
+  try {
+    const deletedTeam = await teamsServices.deleteTeam(teamId);
+    if (!deletedTeam[0].affectedRows) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Team not deleted' 
+      });
+    }
+    res.status(200).json({ 
+      success: true, 
+      message: 'Team deleted' 
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({ 
+      success: false, 
+      message: 'Internal Server Error', 
+      error: error.message 
+    });
+  }
 };

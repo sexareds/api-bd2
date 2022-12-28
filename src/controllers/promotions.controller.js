@@ -1,16 +1,55 @@
-import { getAll, getById, create, update, remove } from '../helper/methods.js';
+import promotionsServices from '../services/promotions.services.js';
 
-const TABLE_NAME = 'promotions';
-const TABLE_ID = 'promotion_id';
-const COLUMNS = 'alias, promotion_type, redirect_to, img, description';
-
-// GET all promotions
-export const getPromotions = (req, res) => {
-  getAll(req, res, TABLE_NAME);
+export const getPromotions = async (req, res) => {
+  try {
+    const promotions = await promotionsServices.getPromotions();
+    if (!promotions[0].length) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'No promotions found'
+      });
+    }
+    res.status(200).json({ 
+      success: true, 
+      body: promotions[0] 
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({ 
+      success: false, 
+      message: 'Internal Server Error', 
+      error: error.message
+    });
+  }
 };
 
-// method that creates a new promotion in the database
-export const createPromotion = (req, res) => {
-  const { alias, promotion_type, redirect_to, img, description } = req.body;
-  create(req, res, TABLE_NAME, COLUMNS, [alias, promotion_type, redirect_to, img, description]);
+export const createPromotion = async (req, res) => {
+  try {
+    const { body } = req;
+    if (!(body.alias && body.promotion_type && body.redirect_to && body.img && body.description)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Please provide all fields' 
+      });
+    }
+    const createdPromotion = await promotionsServices.createPromotion(body);
+    if (!createdPromotion[0].affectedRows) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Promotion not created'
+      });
+    }
+    res.status(201).json({ 
+      success: true, 
+      message: 'Promotion created', 
+      data: body 
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({ 
+      success: false, 
+      message: 'Internal Server Error', 
+      error: error.message 
+    });
+  }
 };

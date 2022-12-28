@@ -1,33 +1,117 @@
-import { getAll, getById, create, remove } from '../helper/methods.js';
+import eventsServices from '../services/events.services.js';
 
-const TABLE_NAME = 'events';
-const TABLE_ID = 'event_id';
-const COLUMNS = 'event_name, img, is_active';
-
-//method that gets all events from the database
-export const getEvents = (req, res) => {
-  getAll(req, res, TABLE_NAME);
+export const getEvents = async (req, res) => {
+  try {
+    const events = await eventsServices.getEvents();
+    if (!events[0].length) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'No events found'
+      });
+    }
+    res.status(200).json({ 
+      success: true, 
+      body: events[0] 
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({ 
+      success: false, 
+      message: `Internal Server Error`, 
+      error: error.message
+    });
+  }
 };
 
-//method that gets an event by id from the database
-export const getEventById = (req, res) => {
-  getById(req, res, TABLE_NAME, TABLE_ID);
+export const createEvent = async (req, res) => {
+  const { body } = req;
+  if (!(body.event_name && body.img && body.is_active)) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Please provide all fields' 
+    });
+  }
+  try {
+    const createdEvent = await eventsServices.createEvent(body);
+    if (!createdEvent[0].affectedRows) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Event not created'
+      });
+    }
+    res.status(201).json({ 
+      success: true, 
+      message: 'Event created', 
+      data: body 
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({ 
+      success: false, 
+      message: 'Internal Server Error', 
+      error: error.message 
+    });
+  }
 };
 
-//method that creates a new event in the database
-export const createEvent = (req, res) => {
-  const { event_name, img, is_active } = req.body;
-  create(req, res, TABLE_NAME, COLUMNS, [event_name, img, is_active]);
+export const updateEvent = async (req, res) => {
+  const { body, params: { eventId } } = req;
+  if (!eventId) {
+    return res.status(400).json({ 
+      success: false,
+      message: 'Event does not exist' 
+    });
+  }
+  try {
+    const updatedEvent = await eventsServices.updateEvent(eventId, body);
+    if (!updatedEvent[0].affectedRows) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Event not updated' 
+      });
+    }
+    res.status(200).json({ 
+      success: true, 
+      message: 'Event updated', 
+      data: body
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({ 
+      success: false, 
+      message: 'Internal Server Error', 
+      error: error.message 
+    });
+  }
 };
 
-//method that updates an event by id in the database
-export const updateEvent = (req, res) => {
-  const { event_name, img, is_active } = req.body;
-  const columns = 'event_name = ?, img = ?, is_active = ?';
-  update(req, res, TABLE_NAME, TABLE_ID, [event_name, img, is_active], columns);  
-};
+export const deleteEvent = async (req, res) => {
+  const { params: { eventId } } = req;
 
-//method that deletes an event by id from the database
-export const deleteEvent = (req, res) => {
-  remove(req, res, TABLE_NAME, TABLE_ID);
+  if (!eventId) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Event does not exist' 
+    });
+  }
+  try {
+    const deletedEvent = await eventsServices.deleteEvent(eventId);
+    if (!deletedEvent[0].affectedRows) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Event not deleted' 
+      });
+    }
+    res.status(200).json({ 
+      success: true, 
+      message: 'Event deleted' 
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({ 
+      success: false, 
+      message: 'Internal Server Error', 
+      error: error.message 
+    });
+  }
 };

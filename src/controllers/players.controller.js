@@ -1,33 +1,118 @@
-import { getAll, getById, create, remove } from '../helper/methods.js';
+import playersServices from '../services/players.services.js';
 
-const TABLE_NAME = 'players';
-const TABLE_ID = 'player_id';
-const COLUMNS = 'first_name, last_name, team_id';
-
-//method that gets all players from the database
-export const getPlayers = (req, res) => {
-  getAll(req, res, TABLE_NAME);
+export const getPlayers = async (req, res) => {
+  try {
+    const players = await playersServices.getPlayers();
+    if (!players[0].length) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'No players found'
+      });
+    }
+    res.status(200).json({ 
+      success: true, 
+      body: players[0] 
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({ 
+      success: false, 
+      message: `Internal Server Error`, 
+      error: error.message
+    });
+  }
 };
 
-//method that gets a player by id from the database
-export const getPlayerById = (req, res) => {
-  getById(req, res, TABLE_NAME, TABLE_ID);
+export const createPlayer = async (req, res) => {
+  const { body } = req;
+  
+  if (!(body.firstName && body.lastName && body.teamId && body.height && body.weight && body.position)) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Please provide all fields' 
+    });
+  }
+  try {
+    const createdPlayer = await playersServices.createPlayer(body);
+    if (!createdPlayer[0].affectedRows) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Player not created'
+      });
+    }
+    res.status(201).json({ 
+      success: true, 
+      message: 'Player created', 
+      data: body 
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({ 
+      success: false, 
+      message: 'Internal Server Error', 
+      error: error.message 
+    });
+  }
 };
 
-//method that creates a new player in the database
-export const createPlayer = (req, res) => {
-  const { first_name, last_name, team_id } = req.body;
-  create(req, res, TABLE_NAME, COLUMNS, [first_name, last_name, team_id]);
+export const updatePlayer = async (req, res) => {
+  const { body, params: { playerId } } = req;
+  if (!playerId) {
+    return res.status(400).json({ 
+      success: false,
+      message: 'Player does not exist' 
+    });
+  }
+  try {
+    const updatedPlayer = await playersServices.updatePlayer(playerId, body);
+    if (!updatedPlayer[0].affectedRows) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Player not updated' 
+      });
+    }
+    res.status(200).json({ 
+      success: true, 
+      message: 'Player updated', 
+      data: body
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({ 
+      success: false, 
+      message: 'Internal Server Error', 
+      error: error.message 
+    });
+  }
 };
 
-//method that updates a player by id in the database
-export const updatePlayer = (req, res) => {
-  const { first_name, last_name, team_id } = req.body;
-  const columns = 'first_name = ?, last_name = ?, team_id = ?';
-  update(req, res, TABLE_NAME, TABLE_ID, columns, [first_name, last_name, team_id]);
-};
+export const deletePlayer = async (req, res) => {
+  const { params: { playerId } } = req;
 
-//method that deletes a player by id from the database
-export const deletePlayer = (req, res) => {
-  remove(req, res, TABLE_NAME, TABLE_ID);
+  if (!playerId) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Player does not exist' 
+    });
+  }
+  try {
+    const deletedPlayer = await playersServices.deletePlayer(playerId);
+    if (!deletedPlayer[0].affectedRows) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Player not deleted' 
+      });
+    }
+    res.status(200).json({ 
+      success: true, 
+      message: 'Player deleted' 
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({ 
+      success: false, 
+      message: 'Internal Server Error', 
+      error: error.message 
+    });
+  }
 };
