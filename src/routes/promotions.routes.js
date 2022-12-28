@@ -3,10 +3,8 @@ import { getPromotions, createPromotion } from '../controllers/promotions.contro
 
 const router = Router();
 
-// Router GET /promotions/all
-router.get('/promotions', getPromotions);
-
-// Router POST /promotions/create
-router.post('/promotions', createPromotion);
+router
+  .get('/promotions', getPromotions)
+  .post('/promotions', createPromotion);
 
 export default router;
