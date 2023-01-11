@@ -1,8 +1,8 @@
 import { pool } from '../database/db.js';
 
-// a service method that gets all users from the database
-export const getUsers = async () => {
-  return await pool.query(`CALL get_all('users')`);
+// a service method that gets a paginated list of users from the database
+export const getUsers = async (offset, limit) => {
+  return await pool.query(`CALL get_all_paginated('users', ?, ?)`, [offset, limit]);
 };
 
 // a service method that creates a new user in the database
