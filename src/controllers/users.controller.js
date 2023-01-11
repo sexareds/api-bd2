@@ -1,9 +1,14 @@
 import usersServices from '../services/users.services.js';
 
-//a method that gets all users from the database
+// a method that gets a paginated list of users from the database
 export const getUsers = async (req, res) => {
+  const { query: { page, limit } } = req;
+  const currentPage = page || 1;
+  const currentLimit = limit || 10;
+  const offset = (currentPage - 1) * currentLimit;
+
   try {
-    const users = await usersServices.getUsers();
+    const users = await usersServices.getUsers(offset, currentLimit);
     if (!users[0].length) {
       res.status(404).json({
         success: false,
@@ -16,9 +21,9 @@ export const getUsers = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(error?.status || 500).json({ 
-      success: false, 
-      message: 'Internal Server Error', 
+    res.status(error?.status || 500).json({
+      success: false,
+      message: 'Internal Server Error',
       error: error.message
     });
   }
