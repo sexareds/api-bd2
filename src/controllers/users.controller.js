@@ -5,20 +5,20 @@ export const getUsers = async (req, res) => {
   try {
     const users = await usersServices.getUsers();
     if (!users[0].length) {
-      return res.status(404).json({ 
-        success: false, 
+      res.status(404).json({
+        success: false,
         message: 'No users found'
       });
     }
-    res.status(200).json({ 
-      success: true, 
-      body: users[0] 
+    res.status(200).json({
+      success: true,
+      body: users[0]
     });
   } catch (error) {
     console.log(error);
     res.status(error?.status || 500).json({ 
       success: false, 
-      message: `Internal Server Error`, 
+      message: 'Internal Server Error', 
       error: error.message
     });
   }
