@@ -2,8 +2,7 @@ import { pool } from '../database/db.js';
 
 // a service method that gets all users from the database
 export const getUsers = async () => {
-  const users = await pool.query(`CALL get_all('users')`);
-  return users;
+  return await pool.query(`CALL get_all('users')`);
 };
 
 // a service method that creates a new user in the database
