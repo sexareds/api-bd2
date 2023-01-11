@@ -17,4 +17,20 @@ export const createPromotion = async (newPromotion) => {
   );
 };
 
-export default { getPromotions, createPromotion };
+export const updatePromotion = async (promotionId, changes) => {
+  const promotionToUpdate = {
+    ...changes,
+    updated_at: new Date()
+  };
+  return await pool.query(
+    `UPDATE promotions SET alias = ?, promotion_type = ?, redirect_to = ?, img = ?, description = ?, updated_at = ? 
+    WHERE promotion_id = ?`,
+    [...Object.values(promotionToUpdate), promotionId]
+  );
+};
+
+export const deletePromotion = async (promotionId) => {
+  return await pool.query('DELETE FROM promotions WHERE promotion_id = ?', [promotionId]);
+};
+
+export default { getPromotions, createPromotion, updatePromotion, deletePromotion };
