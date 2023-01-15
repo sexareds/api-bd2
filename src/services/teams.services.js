@@ -1,10 +1,10 @@
 import { pool } from '../database/db.js';
 
-export const getTeams = async () => {
-  return await pool.query(`CALL get_all('teams')`);
+const getTeams = async (offset, limit) => {
+  return await pool.query(`CALL get_all_paginated('teams', ?, ?)`, [offset, limit]);
 };
 
-export const createTeam = async (newTeam) => {
+const createTeam = async (newTeam) => {
   const teamToInsert = {
     ...newTeam,
     created_at: new Date(),
@@ -16,7 +16,7 @@ export const createTeam = async (newTeam) => {
   );
 };
 
-export const updateTeam = async (teamId, changes) => {
+const updateTeam = async (teamId, changes) => {
   const teamToUpdate = {
     ...changes,
     updated_at: new Date()
@@ -31,4 +31,9 @@ export const deleteTeam = async (teamId) => {
   return await pool.query('DELETE FROM teams WHERE team_id = ?', [teamId]);
 };
 
-export default { getTeams, createTeam, updateTeam, deleteTeam };
+export default {
+  getTeams, 
+  createTeam, 
+  updateTeam, 
+  deleteTeam 
+};
