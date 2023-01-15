@@ -1,9 +1,14 @@
 import teamsServices from '../services/teams.services.js';
 
 export const getTeams = async (req, res) => {
+  const { query: { page, limit } } = req;
+  const currentPage = page || 1;
+  const currentLimit = limit || 10;
+  const offset = (currentPage - 1) * currentLimit;
+
   try {
-    const teams = await teamsServices.getTeams();
-    if (!teams[0].length) {
+    const teams = (await teamsServices.getTeams(offset, currentLimit))[0][0];
+    if (!teams.length) {
       return res.status(404).json({ 
         success: false, 
         message: 'No teams found'
@@ -11,7 +16,7 @@ export const getTeams = async (req, res) => {
     }
     res.status(200).json({ 
       success: true, 
-      body: teams[0] 
+      body: teams
     });
   } catch (error) {
     console.log(error);

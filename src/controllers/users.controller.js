@@ -3,21 +3,18 @@ import usersServices from '../services/users.services.js';
 // a method that gets a paginated list of users from the database
 export const getUsers = async (req, res) => {
   const { query: { page, limit } } = req;
-  const currentPage = page || 1;
-  const currentLimit = limit || 10;
-  const offset = (currentPage - 1) * currentLimit;
 
   try {
-    const users = await usersServices.getUsers(offset, currentLimit);
-    if (!users[0].length) {
-      res.status(404).json({
+    const users = (await usersServices.getUsers(page, limit))[0][0];
+    if (!users.length) {
+      return res.status(404).json({
         success: false,
         message: 'No users found'
       });
     }
     res.status(200).json({
       success: true,
-      body: users[0]
+      body: users
     });
   } catch (error) {
     console.log(error);
