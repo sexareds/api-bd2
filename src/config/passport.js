@@ -10,34 +10,55 @@ import passport from 'passport'
 import { CLIENT_RENEG_LIMIT } from 'tls'
 
 
+export const login = async (req, res) => {
+    let { email, password } = req.body;
+//Buscar usuario
+    const user = (await findUser(email))[0][0];
+    console.log(user);
+    if (user.length === 0) {
+        return responses.errorDTOResponse(res, 404, 'Usuario no encontrado');
+    }
+    //Comparar password
+    if (user.user_password === req.body.user_password) {
+        //Generar token
+        console.log('si')
+        const token = getToken(user);
+        const item = { user, token };
+        console.log(item)
+        return res.json({ message: 'Usuario logeado con exito', item: item })
+    } else {
+        return res.json({ message: 'Contraseña incorrecta' })
+    }
+}
+
+
 export default (passport) => {
 
-    passport.use('login', new localStrategy({
-        usernameField: 'email',
-        passwordField: 'password'
-        }, async (email, password, done) => {
-            try {
-                const user = await findUser(email);
-                if (user.length === 0) {
-                    return done(null, false, { message: 'User not found' });
-                }
-                const validate = await bcrypt.compare(password, user.user_password);
-                if (!validate) {
-                    return done(null, false, { message: 'Wrong Password' });
-                }
-                return done(null, user, { message: 'Logged in Successfully' });
-            }
-            catch (error) {
-                return done(error);
-            }
-        }
-    ));
+    // passport.use('login', new localStrategy({
+    //     username: 'email',
+    //     password: 'password'
+    // }, async (email, password, done) => {
+    //     try {
+    //         const user = await findUser(email);
+    //         if (user.length === 0) {
+    //             return done(null, false, { message: 'User not found' });
+    //         }
+
+    //         if(user.password === password){
+    //             return done(null, user[0], { message: 'Logged in Successfully' });
+    //         }
+    //     }
+    //     catch (error) {
+    //         return done(error);
+    //     }
+    // }));
+    
 
     passport.use('signup', new localStrategy({
-        usernameField: 'email',
-        passwordField: 'password',
+        username: 'email',
+        password: 'password',
         passReqToCallback: true
-        }, async (email, password, done) => {
+        }, async (req, email, password, done) => {
             try {
                 console.log('si')
                 const user = await findUser(email);
@@ -45,15 +66,18 @@ export default (passport) => {
                     return done(null, false, { message: 'User already exists' });
             }
 
+            const salt = await bcrypt.genSalt(10);
+            const hash = await bcrypt.hash(password, salt);
+
             const newUser = {
                 user_name: req.body.user_name,
-                user_role: req.body.user_role,
+                user_role: 'user',
                 email: email,
-                user_password: password
+                user_password: hash
             };
 
             console.log(newUser);
-            const result = await createUser(newUser);
+            await createUser(newUser);
             return done(null, newUser);
             }
             catch (error) {
