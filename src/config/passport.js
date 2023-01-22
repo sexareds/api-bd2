@@ -4,32 +4,85 @@ import JWTStrategy from 'passport-jwt'
 import ExtractJWT from 'passport-jwt'
 import bcrypt from 'bcrypt'
 import authSecret from './authSecret.js'
-import { getUsers, createUser, updateUser, deleteUser, findUser } from './../services/users.services.js'
+import usersServices from './../services/users.services.js'
 import { getToken, getTokenData } from './../config/jwt.config.js'
 import passport from 'passport'
 import { CLIENT_RENEG_LIMIT } from 'tls'
 
 
 export const login = async (req, res) => {
-    let { email, password } = req.body;
-//Buscar usuario
-    const user = (await findUser(email))[0][0];
-    console.log(user);
-    if (user.length === 0) {
-        return responses.errorDTOResponse(res, 404, 'Usuario no encontrado');
-    }
-    //Comparar password
-    if (user.user_password === req.body.user_password) {
-        //Generar token
-        console.log('si')
-        const token = getToken(user);
-        const item = { user, token };
-        console.log(item)
-        return res.json({ message: 'Usuario logeado con exito', item: item })
-    } else {
-        return res.json({ message: 'Contraseña incorrecta' })
-    }
+  let { email, password } = req.body;
+  //Buscar usuario
+  const user = (await findUser(email))[0][0];
+  console.log(user);
+  if (user.length === 0) {
+    return responses.errorDTOResponse(res, 404, 'Usuario no encontrado');
+  }
+  //Comparar password
+  if (user.user_password === req.body.user_password) {
+    //Generar token
+    console.log('si')
+    const token = getToken(user);
+    const item = { user, token };
+    console.log(item)
+    return res.json({ message: 'Usuario logeado con exito', item: item })
+  } else {
+    return res.json({ message: 'Contraseña incorrecta' })
+  }
 }
+
+export const signup = async (req, res) => {
+  try {
+
+    //Buscar usuario
+    const user = (await findUser(body.email))[0][0];
+
+    // Validacion si el usuario existe
+    if (user) {
+      return res.status(409).send("User Already Exist. Please Login");
+    }
+
+    // Validacion de todos los campos del registro
+    if (!(body.user_name && body.user_role && body.email && body.user_password)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Please provide all fields' 
+      });
+    }
+
+    // Encriptar password
+    encryptedPassword = await bcrypt.hash(password, 10);
+
+    // Crear usuario
+    userToRegister = {
+      userName: userName,
+      userRole: userRole,
+      email: email,
+      userPassword: encryptedPassword
+    }
+
+    const registeredUser = await usersServices.createUser(userToRegister);
+
+    // Generar token
+    const token = getToken(registeredUser);
+
+    res.status(201).json({ 
+      message: 'Usuario registrado con exito', 
+      item: { user: userToRegister, token } 
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
+
+
+
+
+
+
+
 
 
 export default (passport) => {
