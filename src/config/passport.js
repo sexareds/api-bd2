@@ -4,7 +4,7 @@ import JWTStrategy from 'passport-jwt'
 import ExtractJWT from 'passport-jwt'
 import bcrypt from 'bcrypt'
 import authSecret from './authSecret.js'
-import usersServices from './../services/users.services.js'
+import usersServices, { findUser } from './../services/users.services.js'
 import { getToken, getTokenData } from './../config/jwt.config.js'
 import passport from 'passport'
 import { CLIENT_RENEG_LIMIT } from 'tls'
@@ -33,6 +33,7 @@ export const login = async (req, res) => {
 
 export const signup = async (req, res) => {
   try {
+    const { body } = req;
 
     //Buscar usuario
     const user = (await findUser(body.email))[0][0];
@@ -51,17 +52,26 @@ export const signup = async (req, res) => {
     }
 
     // Encriptar password
-    encryptedPassword = await bcrypt.hash(password, 10);
+    const encryptedPassword = await bcrypt.hash(body.user_password, 10);
 
     // Crear usuario
-    userToRegister = {
-      userName: userName,
-      userRole: userRole,
-      email: email,
+    const userToRegister = {
+      userName: body.user_name,
+      userRole: body.user_role,
+      email: body.email,
       userPassword: encryptedPassword
     }
 
     const registeredUser = await usersServices.createUser(userToRegister);
+
+    console.log(registeredUser)
+
+    if (!registeredUser[0].affectedRows) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'User not created' 
+      });
+    }
 
     // Generar token
     const token = getToken(registeredUser);
@@ -85,74 +95,74 @@ export const signup = async (req, res) => {
 
 
 
-export default (passport) => {
+// export default (passport) => {
 
-    // passport.use('login', new localStrategy({
-    //     username: 'email',
-    //     password: 'password'
-    // }, async (email, password, done) => {
-    //     try {
-    //         const user = await findUser(email);
-    //         if (user.length === 0) {
-    //             return done(null, false, { message: 'User not found' });
-    //         }
+//     // passport.use('login', new localStrategy({
+//     //     username: 'email',
+//     //     password: 'password'
+//     // }, async (email, password, done) => {
+//     //     try {
+//     //         const user = await findUser(email);
+//     //         if (user.length === 0) {
+//     //             return done(null, false, { message: 'User not found' });
+//     //         }
 
-    //         if(user.password === password){
-    //             return done(null, user[0], { message: 'Logged in Successfully' });
-    //         }
-    //     }
-    //     catch (error) {
-    //         return done(error);
-    //     }
-    // }));
+//     //         if(user.password === password){
+//     //             return done(null, user[0], { message: 'Logged in Successfully' });
+//     //         }
+//     //     }
+//     //     catch (error) {
+//     //         return done(error);
+//     //     }
+//     // }));
     
 
-    passport.use('signup', new localStrategy({
-        username: 'email',
-        password: 'password',
-        passReqToCallback: true
-        }, async (req, email, password, done) => {
-            try {
-                console.log('si')
-                const user = await findUser(email);
-                if (user.length > 0) {
-                    return done(null, false, { message: 'User already exists' });
-            }
+//     passport.use('signup', new localStrategy({
+//         username: 'email',
+//         password: 'password',
+//         passReqToCallback: true
+//         }, async (req, email, password, done) => {
+//             try {
+//                 console.log('si')
+//                 const user = await findUser(email);
+//                 if (user.length > 0) {
+//                     return done(null, false, { message: 'User already exists' });
+//             }
 
-            const salt = await bcrypt.genSalt(10);
-            const hash = await bcrypt.hash(password, salt);
+//             const salt = await bcrypt.genSalt(10);
+//             const hash = await bcrypt.hash(password, salt);
 
-            const newUser = {
-                user_name: req.body.user_name,
-                user_role: 'user',
-                email: email,
-                user_password: hash
-            };
+//             const newUser = {
+//                 user_name: req.body.user_name,
+//                 user_role: 'user',
+//                 email: email,
+//                 user_password: hash
+//             };
 
-            console.log(newUser);
-            await createUser(newUser);
-            return done(null, newUser);
-            }
-            catch (error) {
-                console.log('si')
-                done(error);
-            }
-        }
-    ));
+//             console.log(newUser);
+//             await createUser(newUser);
+//             return done(null, newUser);
+//             }
+//             catch (error) {
+//                 console.log('si')
+//                 done(error);
+//             }
+//         }
+//     ));
     
-    var opts = {};
-    opts.jwtFromRequest = ExtractJWT.ExtractJwt.fromAuthHeaderAsBearerToken();
-    opts.secretOrKey = authSecret;
-    passport.use(new JWTStrategy.Strategy(opts, async (jwt_payload, done) => {
-        try {
-            const user = await findUser(jwt_payload.email);
-            if (user.length === 0) {
-                return done(null, false);
-            }
-            return done(null, user[0]);
-        }
-        catch (error) {
-            return done(error, false);
-        }
-    }));
-}
+//     var opts = {};
+//     opts.jwtFromRequest = ExtractJWT.ExtractJwt.fromAuthHeaderAsBearerToken();
+//     opts.secretOrKey = authSecret;
+//     passport.use(new JWTStrategy.Strategy(opts, async (jwt_payload, done) => {
+//         try {
+//             const user = await findUser(jwt_payload.email);
+//             if (user.length === 0) {
+//                 return done(null, false);
+//             }
+//             return done(null, user[0]);
+//         }
+//         catch (error) {
+//             return done(error, false);
+//         }
+//     }));
+// }
