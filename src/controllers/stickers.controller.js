@@ -1,3 +1,4 @@
+import { getToken, getTokenData } from '../config/jwt.config.js';
 import stickersServices from '../services/stickers.services.js';
 
 export const getStickers = async (req, res) => {
@@ -167,6 +168,32 @@ export const deleteSticker = async (req, res) => {
       success: false, 
       message: 'Internal Server Error', 
       error: error.message 
+    });
+  }
+};
+
+export const getUserStickers = async (req, res) => {
+  var token = req.headers.authorization;
+  token = token.replace('Bearer ', '');
+  const email = getTokenData(token).data.email;
+  try {
+    const userStickers = (await stickersServices.getUserStickers(email))[0][0];
+    if (!userStickers.length) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'No stickers found'
+      });
+    }
+    res.status(200).json({ 
+      Stickers: userStickers 
+    });
+  }
+  catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({ 
+      success: false, 
+      message: `Internal Server Error`, 
+      error: error.message
     });
   }
 };

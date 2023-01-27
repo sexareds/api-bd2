@@ -40,4 +40,4 @@ export const deleteSticker = async (stickerId) => {
   return await pool.query('DELETE FROM stickers WHERE sticker_id = ?', [stickerId]);
 };
 
-export default { getStickers, getStickersPaginated, getStickerById, createSticker, updateSticker, deleteSticker };
+export default { getStickers, createSticker, updateSticker, deleteSticker };
