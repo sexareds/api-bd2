@@ -2,8 +2,8 @@ import gamesServices from '../services/games.services.js';
 
 export const getGames = async (req, res) => {
   try {
-    const games = await gamesServices.getGames();
-    if (!games[0].length) {
+    const games = (await gamesServices.getGames())[0][0];
+    if (!games.length) {
       return res.status(404).json({ 
         success: false, 
         message: 'No games found'
@@ -11,13 +11,61 @@ export const getGames = async (req, res) => {
     }
     res.status(200).json({ 
       success: true, 
-      body: games[0] 
+      body: games
     });
   } catch (error) {
     console.log(error);
     res.status(error?.status || 500).json({ 
       success: false, 
       message: `Internal Server Error`, 
+      error: error.message
+    });
+  }
+};
+
+export const getGamesPaginated = async (req, res) => {
+  const { page, limit } = req.query;
+  try {
+    const games = (await gamesServices.getGamesPaginated(page, limit))[0][0];
+    if (!games.length) {
+      return res.status(404).json({
+        success: false,
+        message: 'No games found'
+      });
+    }
+    res.status(200).json({
+      success: true,
+      body: games
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({
+      success: false,
+      message: `Internal Server Error`,
+      error: error.message
+    });
+  }
+};
+
+export const getGameById = async (req, res) => {
+  const { gameId } = req.params;
+  try {
+    const game = (await gamesServices.getGameById(gameId))[0][0];
+    if (!game.length) {
+      return res.status(404).json({
+        success: false,
+        message: 'No game found'
+      });
+    }
+    res.status(200).json({
+      success: true,
+      body: game
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({
+      success: false,
+      message: `Internal Server Error`,
       error: error.message
     });
   }

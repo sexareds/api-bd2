@@ -26,8 +26,8 @@ export const getTeams = async (req, res) => {
 export const getTeamsPaginated = async (req, res) => {
   const { query: { page, limit } } = req;
   try {
-    const teams = await teamsServices.getTeams(page, limit);
-    if (!teams[0].length) {
+    const teams = (await teamsServices.getTeamsPaginated(page, limit))[0][0];
+    if (!teams.length) {
       return res.status(404).json({
         success: false,
         message: 'No teams found'
@@ -35,7 +35,7 @@ export const getTeamsPaginated = async (req, res) => {
     }
     res.status(200).json({
       success: true,
-      body: teams[0]
+      body: teams
     });
   } catch (error) {
     console.log(error);
@@ -56,8 +56,8 @@ export const getTeamById = async (req, res) => {
     });
   }
   try {
-    const team = await teamsServices.getTeamById(teamId);
-    if (!team[0].length) {
+    const team = (await teamsServices.getTeamById(teamId))[0][0];
+    if (!team.length) {
       return res.status(404).json({
         success: false,
         message: 'Team not found'
@@ -65,7 +65,7 @@ export const getTeamById = async (req, res) => {
     }
     res.status(200).json({
       success: true,
-      body: team[0]
+      body: team
     });
   } catch (error) {
     console.log(error);

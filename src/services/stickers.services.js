@@ -4,9 +4,13 @@ export const getStickers = async () => {
   return await pool.query(`CALL get_all('stickers')`);
 };
 
-// export const getStickersOfUser = async (email) => {
-//   return await pool.query(`CALL get_all_of_user('stickers', ?)`, [userId]);
-// };
+const getStickersPaginated = async (page, limit) => {
+  return await pool.query(`CALL get_all_paginated('stickers', ?, ?)`, [page, limit]);
+};
+
+const getStickerById = async (stickerId) => {
+  return await pool.query(`CALL get_by_id('stickers', ?)`, [stickerId]);
+};
 
 export const createSticker = async (newSticker) => {
   const stickerToInsert = {
@@ -36,4 +40,4 @@ export const deleteSticker = async (stickerId) => {
   return await pool.query('DELETE FROM stickers WHERE sticker_id = ?', [stickerId]);
 };
 
-export default { getStickers, createSticker, updateSticker, deleteSticker };
+export default { getStickers, getStickersPaginated, getStickerById, createSticker, updateSticker, deleteSticker };

@@ -1,7 +1,7 @@
 import { pool } from '../database/db.js';
 
 export const getPromotions = async () => {
-  return await pool.query(`CALL get_all('ads')`);
+  return await pool.query(`CALL get_all('promotions')`);
 };
 
 export const createPromotion = async (newPromotion) => {
@@ -11,7 +11,7 @@ export const createPromotion = async (newPromotion) => {
     updated_at: new Date(),
   };
   return await pool.query(
-    `INSERT INTO ads(alias, promotion_type, redirect_to, img, description, created_at, updated_at) 
+    `INSERT INTO promotions(alias, promotion_type, redirect_to, img, description, created_at, updated_at) 
     VALUES(?, ?, ?, ?, ?, ?, ?)`,
     Object.values(promotionToInsert)
   );

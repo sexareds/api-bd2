@@ -2,8 +2,8 @@ import stickersServices from '../services/stickers.services.js';
 
 export const getStickers = async (req, res) => {
   try {
-    const stickers = await stickersServices.getStickers();
-    if (!stickers[0].length) {
+    const stickers = (await stickersServices.getStickers())[0][0];
+    if (!stickers.length) {
       return res.status(404).json({ 
         success: false, 
         message: 'No stickers found'
@@ -11,13 +11,68 @@ export const getStickers = async (req, res) => {
     }
     res.status(200).json({ 
       success: true, 
-      body: stickers[0] 
+      body: stickers 
     });
   } catch (error) {
     console.log(error);
     res.status(error?.status || 500).json({ 
       success: false, 
       message: `Internal Server Error`, 
+      error: error.message
+    });
+  }
+};
+
+export const getStickersPaginated = async (req, res) => {
+  const { query: { page, limit } } = req;
+  try {
+    const stickers = (await stickersServices.getStickersPaginated(page, limit))[0][0];
+    if (!stickers.length) {
+      return res.status(404).json({
+        success: false,
+        message: 'No stickers found'
+      });
+    }
+    res.status(200).json({
+      success: true,
+      body: stickers
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({
+      success: false,
+      message: `Internal Server Error`,
+      error: error.message
+    });
+  }
+};
+
+export const getStickerById = async (req, res) => {
+  const { params: { stickerId } } = req;
+  
+  if (!stickerId) {
+    return res.status(400).json({
+      success: false,
+      message: 'sticker does not exist'
+    });
+  }
+  try {
+    const sticker = (await stickersServices.getStickerById(stickerId))[0][0];
+    if (!sticker.length) {
+      return res.status(404).json({
+        success: false,
+        message: 'Sticker not found'
+      });
+    }
+    res.status(200).json({
+      success: true,
+      body: sticker
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({
+      success: false,
+      message: `Internal Server Error`,
       error: error.message
     });
   }

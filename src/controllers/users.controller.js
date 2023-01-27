@@ -2,8 +2,8 @@ import usersServices from '../services/users.services.js';
 
 export const getUsers = async (req, res) => {
   try {
-    const users = (await usersServices.getUsers())[0];
-    if (!users[0].length) {
+    const users = (await usersServices.getUsers())[0][0];
+    if (!users.length) {
       return res.status(404).json({
         success: false,
         message: 'No users found'
@@ -11,7 +11,7 @@ export const getUsers = async (req, res) => {
     }
     res.status(200).json({
       success: true,
-      body: users[0]
+      body: users
     });
   } catch (error) {
     console.log(error);
@@ -27,8 +27,8 @@ export const getUsersPaginated = async (req, res) => {
   const { query: { page, limit } } = req;
 
   try {
-    const users = (await usersServices.getUsers(page, limit))[0];
-    if (!users[0].length) {
+    const users = (await usersServices.getUsersPaginated(page, limit))[0][0];
+    if (!users.length) {
       res.status(404).json({
         success: false,
         message: 'No users found'

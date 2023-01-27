@@ -4,6 +4,14 @@ export const getGames = async () => {
   return await pool.query(`CALL get_all('games')`);
 };
 
+const getGamesPaginated = async (page, limit) => {
+  return await pool.query(`CALL get_all_paginated('games', ?, ?)`, [page, limit]);
+};
+
+const getGameById = async (gameId) => {
+  return await pool.query(`CALL get_by_id('games', ?)`, [gameId]);
+};
+
 export const createGame = async (newGame) => {
   const gameToInsert = {
     ...newGame,
@@ -27,4 +35,4 @@ export const deleteGame = async (gameId) => {
   return await pool.query('DELETE FROM games WHERE game_id = ?', [gameId]);
 };
 
-export default { getGames, createGame, updateGame, deleteGame };
+export default { getGames, getGamesPaginated, getGameById, createGame, updateGame, deleteGame };
