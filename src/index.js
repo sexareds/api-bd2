@@ -17,6 +17,7 @@ import gamesRoutes from './routes/games.routes.js';
 import promotionsRoutes from './routes/promotions.routes.js';
 import { initialPage } from './middleware/initialPage.js';
 import { notFound } from './middleware/notFound.js';
+import { verifyToken } from './middleware/auth.js';
 
 const PORT = 3000;
 

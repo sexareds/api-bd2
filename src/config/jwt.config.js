@@ -1,14 +1,15 @@
 import jwt from 'jsonwebtoken';
+import authSecret from './authSecret.js'
 
 const getToken = (payload) => {
     return jwt.sign({
         data : payload
-    }, 'secret', { expiresIn: '1h' });
+    }, authSecret, { expiresIn: '1h' });
 };
 
 const getTokenData = (token) => {
     let data = null;
-    jwt.verify(token, 'secret', (err, decoded) => {
+    jwt.verify(token, authSecret, (err, decoded) => {
         if (err) {
             console.log('Error al obtener el token');
         } else {

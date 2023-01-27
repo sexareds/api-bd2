@@ -1,3 +1,3 @@
-const authSecret = 'clavesecreta'
+const authSecret = 'SECRET'
 
 export default authSecret;

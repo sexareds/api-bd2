@@ -14,17 +14,16 @@ export const login = async (req, res) => {
   let { email, password } = req.body;
   //Buscar usuario
   const user = (await findUser(email))[0][0];
-  console.log(user);
-  if (user.length === 0) {
-    return responses.errorDTOResponse(res, 404, 'Usuario no encontrado');
+  if (!user) {
+    return res.json({ message: 'Usuario no encontrado' })
   }
   //Comparar password
-  if (user.user_password === req.body.user_password) {
+  const validate = await bcrypt.compare(req.body.user_password, user.user_password);
+  console.log(validate)
+  if (validate) {
     //Generar token
-    console.log('si')
     const token = getToken(user);
     const item = { user, token };
-    console.log(item)
     return res.json({ message: 'Usuario logeado con exito', item: item })
   } else {
     return res.json({ message: 'Contraseña incorrecta' })
@@ -38,6 +37,7 @@ export const signup = async (req, res) => {
     //Buscar usuario
     const user = (await findUser(body.email))[0][0];
 
+    console.log(user)
     // Validacion si el usuario existe
     if (user) {
       return res.status(409).send("User Already Exist. Please Login");
