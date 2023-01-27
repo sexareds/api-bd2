@@ -1,0 +1,10 @@
+DROP PROCEDURE IF EXISTS get_random_ad;
+
+DELIMITER &&
+
+CREATE PROCEDURE get_random_ad()
+BEGIN
+	SELECT ad_id FROM ads ORDER BY RAND() LIMIT 1;
+END &&
+
+DELIMITER ;

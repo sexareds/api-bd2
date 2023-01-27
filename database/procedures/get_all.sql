@@ -1,0 +1,15 @@
+DROP PROCEDURE IF EXISTS get_all;
+
+DELIMITER $$
+
+CREATE PROCEDURE get_all(
+	IN table_name VARCHAR(255)
+)
+BEGIN
+	SET @t := CONCAT('SELECT * FROM ', table_name);
+	PREPARE stmt FROM @t;
+	EXECUTE stmt;
+	DEALLOCATE PREPARE stmt;
+END $$
+
+DELIMITER ;

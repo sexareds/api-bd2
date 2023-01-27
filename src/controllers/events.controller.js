@@ -1,29 +1,117 @@
-import { pool } from '../db.js';
+import eventsServices from '../services/events.services.js';
 
-//method that gets all events from the database
 export const getEvents = async (req, res) => {
   try {
-    const response = await pool.query('SELECT * FROM events');
-    if (!response[0].length) {
-      return res.status(404).json({success: false, message: 'No events found'});
+    const events = await eventsServices.getEvents();
+    if (!events[0].length) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'No events found'
+      });
     }
-    res.status(200).json(response[0]);
-  } catch (e) {
-    console.log(e);
+    res.status(200).json({ 
+      success: true, 
+      body: events[0] 
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({ 
+      success: false, 
+      message: `Internal Server Error`, 
+      error: error.message
+    });
   }
-}
+};
 
-//method that gets an event by id from the database
-export const getEventById = async (req, res) => {
+export const createEvent = async (req, res) => {
+  const { body } = req;
+  if (!(body.event_name && body.img && body.is_active)) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Please provide all fields' 
+    });
+  }
   try {
-    const event_id = req.params.id;
-    const response = await pool.query('SELECT * FROM events WHERE event_id = ?', [event_id]);
-    if (!response[0].length) {
-      return res.status(404).json({success: false, message: 'Event not found'});
+    const createdEvent = await eventsServices.createEvent(body);
+    if (!createdEvent[0].affectedRows) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Event not created'
+      });
     }
-    res.status(200).json(response[0]);
-  } catch (e) {
-    console.log(e);
-    res.status(500).json('Internal Server Error');
+    res.status(201).json({ 
+      success: true, 
+      message: 'Event created', 
+      data: body 
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({ 
+      success: false, 
+      message: 'Internal Server Error', 
+      error: error.message 
+    });
+  }
+};
+
+export const updateEvent = async (req, res) => {
+  const { body, params: { eventId } } = req;
+  if (!eventId) {
+    return res.status(400).json({ 
+      success: false,
+      message: 'Event does not exist' 
+    });
+  }
+  try {
+    const updatedEvent = await eventsServices.updateEvent(eventId, body);
+    if (!updatedEvent[0].affectedRows) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Event not updated' 
+      });
+    }
+    res.status(200).json({ 
+      success: true, 
+      message: 'Event updated', 
+      data: body
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({ 
+      success: false, 
+      message: 'Internal Server Error', 
+      error: error.message 
+    });
+  }
+};
+
+export const deleteEvent = async (req, res) => {
+  const { params: { eventId } } = req;
+
+  if (!eventId) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Event does not exist' 
+    });
+  }
+  try {
+    const deletedEvent = await eventsServices.deleteEvent(eventId);
+    if (!deletedEvent[0].affectedRows) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Event not deleted' 
+      });
+    }
+    res.status(200).json({ 
+      success: true, 
+      message: 'Event deleted' 
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({ 
+      success: false, 
+      message: 'Internal Server Error', 
+      error: error.message 
+    });
   }
 };

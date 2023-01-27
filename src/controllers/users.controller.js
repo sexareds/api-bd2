@@ -1,42 +1,122 @@
-import { pool } from '../db.js';
-import { getAll, getById, create, remove } from '../helper/methods.js';
+import usersServices from '../services/users.services.js';
 
 //a method that gets all users from the database
-export const getUsers = (req, res) => {
-  getAll(req, res, 'users');
-};
-
-//a method that gets an user by id from the database
-export const getUserById = (req, res) => {
-  getById(req, res, 'users', 'user_id');
-};
-
-//a method that creates a new user in the database
-export const createUser = (req, res) => {
-  const { user_name, user_role, email, user_password } = req.body;
-  create(req, res, 'users', 'user_name, user_role, email, user_password', [user_name, user_role, email, user_password]);
-};
-
-//a method that updates and user by id in the database
-export const updateUser = async (req, res) => {
+export const getUsers = async (req, res) => {
   try {
-    const id = req.params.id;
-    const { user_name, user_role, email, user_password } = req.body;
-    const response = await pool.query('UPDATE users SET user_name = ?, user_role = ?, email = ?, user_password = ? WHERE user_id = ?', [user_name, user_role, email, user_password, id]);
-    res.status(200).json({
-      success: true,
-      message: 'User updated successfully',
-      body: {
-        user: { user_name, user_role, email, user_password }
-      }
+    const users = await usersServices.getUsers();
+    if (!users[0].length) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'No users found'
+      });
+    }
+    res.status(200).json({ 
+      success: true, 
+      body: users[0] 
     });
-  } catch (e) {
-    console.log(e);
-    res.status(500).json('Internal Server Error');
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({ 
+      success: false, 
+      message: `Internal Server Error`, 
+      error: error.message
+    });
   }
 };
 
-//a method that deletes an user by id from the database
-export const deleteUser = (req, res) => {
-  remove(req, res, 'users', 'user_id');
+// creates a new user
+export const createUser = async (req, res) => {
+  const { body } = req;
+  if (!(body.user_name && body.user_role && body.email && body.user_password)) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Please provide all fields' 
+    });
+  }
+  try {
+    const createdUser = await usersServices.createUser(body);
+    if (!createdUser[0].affectedRows) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'User not created' 
+      });
+    }
+    res.status(200).json({ 
+      success: true, 
+      message: 'User created', 
+      data: body 
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({ 
+      success: false, 
+      message: 'Internal Server Error', 
+      error: error.message 
+    });
+  }
+};
+
+// a method that updates an user in the database
+export const updateUser = async (req, res) => {
+  const { body, params: { userId } } = req;
+
+  if (!userId) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'User does not exist' 
+    });
+  }
+  try {
+    const updatedUser = await usersServices.updateUser(userId, body);
+    if (!updatedUser[0].affectedRows) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'User not updated' 
+      });
+    }
+    res.status(200).json({ 
+      success: true, 
+      message: 'User updated', 
+      data: body
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({ 
+      success: false, 
+      message: 'Internal Server Error', 
+      error: error.message 
+    });
+  }
+};
+
+// a method that deletes an user from the database
+export const deleteUser = async (req, res) => {
+  const { params: { userId } } = req;
+
+  if (!userId) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'User does not exist' 
+    });
+  }
+  try {
+    const deletedUser = await usersServices.deleteUser(userId);
+    if (!deletedUser[0].affectedRows) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'User not deleted' 
+      });
+    }
+    res.status(200).json({ 
+      success: true, 
+      message: 'User deleted' 
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({ 
+      success: false, 
+      message: 'Internal Server Error', 
+      error: error.message 
+    });
+  }
 };
