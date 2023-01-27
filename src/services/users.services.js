@@ -1,12 +1,20 @@
 import { pool } from '../database/db.js';
 
+const getUsers = async () => {
+  return await pool.query(`CALL get_all('users')`);
+};
+
 // a service method that gets a paginated list of users from the database
-export const getUsers = async (offset, limit) => {
-  return await pool.query(`CALL get_all_paginated('users', ?, ?)`, [offset, limit]);
+const getUsersPaginated = async (page, limit) => {
+  return await pool.query(`CALL get_all_paginated('users', ?, ?)`, [page, limit]);
+};
+
+const getUserById = async (userId) => {
+  return await pool.query(`CALL get_by_id('users', ?)`, [userId]);
 };
 
 // a service method that creates a new user in the database
-export const createUser = async (newUser) => {
+const createUser = async (newUser) => {
   const userToInsert = {
     ...newUser,
     created_at: new Date(),
@@ -19,7 +27,7 @@ export const createUser = async (newUser) => {
 };
 
 // a service method that updates an user in the database
-export const updateUser = async (userId, changes) => {
+const updateUser = async (userId, changes) => {
   const userToUpdate = {
     ...changes,
     updated_at: new Date()
@@ -31,8 +39,8 @@ export const updateUser = async (userId, changes) => {
 };
 
 // a service method that deletes an user in the database
-export const deleteUser = async (userId) => {
+const deleteUser = async (userId) => {
   return await pool.query('DELETE FROM users WHERE user_id = ?', [userId]);
 };
 
-export default { getUsers, createUser, updateUser, deleteUser };
+export default { getUsers, getUsersPaginated, getUserById, createUser, updateUser, deleteUser };

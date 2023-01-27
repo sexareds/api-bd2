@@ -4,6 +4,10 @@ export const getStickers = async () => {
   return await pool.query(`CALL get_all('stickers')`);
 };
 
+// export const getStickersOfUser = async (email) => {
+//   return await pool.query(`CALL get_all_of_user('stickers', ?)`, [userId]);
+// };
+
 export const createSticker = async (newSticker) => {
   const stickerToInsert = {
     ...newSticker,

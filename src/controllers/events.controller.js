@@ -2,8 +2,33 @@ import eventsServices from '../services/events.services.js';
 
 export const getEvents = async (req, res) => {
   try {
-    const events = await eventsServices.getEvents();
-    if (!events[0].length) {
+    const events = (await eventsServices.getEvents())[0][0];
+    if (!events.length) {
+      return res.status(404).json({
+        success: false,
+        message: 'No events found'
+      });
+    }
+    res.status(200).json({
+      success: true,
+      body: events
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({
+      success: false,
+      message: 'Internal Server Error',
+      error: error.message
+    });
+  }
+};
+
+export const getEventsPaginated = async (req, res) => {
+  const { query: { page, limit } } = req;
+
+  try {
+    const events = (await eventsServices.getEventsPaginated(page, limit))[0][0];
+    if (!events.length) {
       return res.status(404).json({ 
         success: false, 
         message: 'No events found'
@@ -11,13 +36,43 @@ export const getEvents = async (req, res) => {
     }
     res.status(200).json({ 
       success: true, 
-      body: events[0] 
+      body: events 
     });
   } catch (error) {
     console.log(error);
     res.status(error?.status || 500).json({ 
       success: false, 
       message: `Internal Server Error`, 
+      error: error.message
+    });
+  }
+};
+
+export const getEventById = async (req, res) => {
+  const { params: { eventId } } = req;
+  if (!eventId) {
+    return res.status(400).json({
+      success: false,
+      message: 'Event does not exist'
+    });
+  }
+  try {
+    const event = (await eventsServices.getEventById(eventId))[0][0];
+    if (!event.length) {
+      return res.status(404).json({
+        success: false,
+        message: 'Event does not exist'
+      });
+    }
+    res.status(200).json({
+      success: true,
+      body: event
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({
+      success: false,
+      message: 'Internal Server Error',
       error: error.message
     });
   }

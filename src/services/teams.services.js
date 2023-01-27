@@ -4,6 +4,14 @@ export const getTeams = async () => {
   return await pool.query(`CALL get_all('teams')`);
 };
 
+const getTeamsPaginated = async (page, limit) => {
+  return await pool.query(`CALL get_all_paginated('teams', ?, ?)`, [page, limit]);
+};
+
+const getTeamById = async (teamId) => {
+  return await pool.query(`CALL get_by_id('teams', ?)`, [teamId]);
+};
+
 export const createTeam = async (newTeam) => {
   const teamToInsert = {
     ...newTeam,
@@ -31,4 +39,4 @@ export const deleteTeam = async (teamId) => {
   return await pool.query('DELETE FROM teams WHERE team_id = ?', [teamId]);
 };
 
-export default { getTeams, createTeam, updateTeam, deleteTeam };
+export default { getTeams, getTeamsPaginated, getTeamById, createTeam, updateTeam, deleteTeam };

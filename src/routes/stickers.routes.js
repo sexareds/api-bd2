@@ -5,6 +5,7 @@ const router = Router();
 
 router
   .get('/stickers/all', getStickers)
+  .get('/stickers/:userId', getStickers)
   .post('/stickers', createSticker)
   .put('/stickers/:stickerId', updateSticker)
   .delete('/stickers/:stickerId', deleteSticker);

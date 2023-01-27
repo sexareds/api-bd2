@@ -1,14 +1,33 @@
 import usersServices from '../services/users.services.js';
 
-// a method that gets a paginated list of users from the database
 export const getUsers = async (req, res) => {
+  try {
+    const users = (await usersServices.getUsers())[0];
+    if (!users[0].length) {
+      return res.status(404).json({
+        success: false,
+        message: 'No users found'
+      });
+    }
+    res.status(200).json({
+      success: true,
+      body: users[0]
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({
+      success: false,
+      message: 'Internal Server Error',
+      error: error.message
+    });
+  }
+};
+
+export const getUsersPaginated = async (req, res) => {
   const { query: { page, limit } } = req;
-  const currentPage = page || 1;
-  const currentLimit = limit || 10;
-  const offset = (currentPage - 1) * currentLimit;
 
   try {
-    const users = await usersServices.getUsers(offset, currentLimit);
+    const users = (await usersServices.getUsers(page, limit))[0];
     if (!users[0].length) {
       res.status(404).json({
         success: false,
@@ -18,6 +37,37 @@ export const getUsers = async (req, res) => {
     res.status(200).json({
       success: true,
       body: users[0]
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({
+      success: false,
+      message: 'Internal Server Error',
+      error: error.message
+    });
+  }
+};
+
+export const getUserById = async (req, res) => {
+  const { params: { userId } } = req;
+
+  if (!userId) {
+    return res.status(400).json({
+      success: false,
+      message: 'User does not exist'
+    });
+  }
+  try {
+    const user = (await usersServices.getUserById(userId))[0][0];
+    if (!user.length) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+    res.status(200).json({
+      success: true,
+      body: user
     });
   } catch (error) {
     console.log(error);

@@ -1,7 +1,15 @@
 import { pool } from '../database/db.js';
 
-export const getEvents = async () => {
+const getEvents = async () => {
   return await pool.query(`CALL get_all('events')`);
+};
+
+export const getEventsPaginated = async (page, limit) => {
+  return await pool.query(`CALL get_all_paginated('events', ?, ?)`, [page, limit]);
+};
+
+const getEventById = async (eventId) => {
+  return await pool.query(`CALL get_by_id('events', ?)`, [eventId]);
 };
 
 export const createEvent = async (newEvent) => {
@@ -31,4 +39,4 @@ export const deleteEvent = async (eventId) => {
   return await pool.query('DELETE FROM events WHERE event_id = ?', [eventId]);
 };
 
-export default { getEvents, createEvent, updateEvent, deleteEvent };
+export default { getEvents, getEventsPaginated, getEventById, createEvent, updateEvent, deleteEvent };

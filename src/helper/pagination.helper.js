@@ -1,17 +1,9 @@
-const paginate = (total, page, limit) => {
-  const pages = Math.ceil(total / limit);
-  const currentPage = page;
-  const prevPage = page - 1;
-  const nextPage = page + 1;
-  const hasNextPage = page < pages;
-  const hasPrevPage = page > 1;
-  return {
-    total,
-    pages,
-    currentPage,
-    prevPage,
-    nextPage,
-    hasNextPage,
-    hasPrevPage,
-  };
+// a method to paginate the results in controllers using mysql stored procedures
+
+export const paginate = (req, res) => {
+  const { query: { page, limit } } = req;
+  const currentPage = page || 1;
+  const currentLimit = limit || 10;
+
+  return { page, currentLimit };
 };
