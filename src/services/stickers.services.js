@@ -32,4 +32,8 @@ export const deleteSticker = async (stickerId) => {
   return await pool.query('DELETE FROM stickers WHERE sticker_id = ?', [stickerId]);
 };
 
-export default { getStickers, createSticker, updateSticker, deleteSticker };
+export const getUserStickers = async (email) => {
+  return await pool.query('CALL get_all_stickers_of_user(?)', [email]);
+};
+
+export default { getStickers, createSticker, updateSticker, deleteSticker, getUserStickers };

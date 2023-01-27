@@ -39,4 +39,9 @@ export const findUser = async (email) => {
   return await pool.query('SELECT * FROM users WHERE email = ?', [email]);
 };
 
-export default { getUsers, createUser, updateUser, deleteUser, findUser };
+export const checkDailyReward = async (email) => {
+  return await pool.query('SELECT daily_reward FROM users WHERE email = ?', [email]);
+};
+
+
+export default { getUsers, createUser, updateUser, deleteUser, findUser, checkDailyReward };

@@ -1,4 +1,6 @@
+import e from 'express';
 import usersServices from '../services/users.services.js';
+import { getTokenData } from '../config/jwt.config.js';
 
 //a method that gets all users from the database
 export const getUsers = async (req, res) => {
@@ -111,6 +113,42 @@ export const deleteUser = async (req, res) => {
       success: true, 
       message: 'User deleted' 
     });
+  } catch (error) {
+    console.log(error);
+    res.status(error?.status || 500).json({ 
+      success: false, 
+      message: 'Internal Server Error', 
+      error: error.message 
+    });
+  }
+};
+
+export const checkDailyReward = async (req, res) => {
+  var token = req.headers.authorization;
+  token = token.replace('Bearer ', '');
+  const email = getTokenData(token).data.email;
+  try {
+    const reward = (await usersServices.checkDailyReward(email))[0][0];
+    console.log(reward);
+    if (!reward.daily_reward) {
+      return res.status(404).json({ 
+        message: 'Tienes tu cromo diario disponible!'
+      });
+    }else{
+      const actualDate = new Date();
+      const sqlDate = new Date(reward.daily_reward);
+      const diff = Math.abs(actualDate.getTime() - sqlDate.getTime());
+      const diffInHours = diff / (1000 * 60 * 60);
+      if (diffInHours > 24){
+        return res.status(404).json({
+          message: 'Tienes tu cromo diario disponible!'
+        });
+      }else{
+        return res.status(200).json({
+          message: 'Ya has reclamado tu cromo diario!'
+        });
+      }
+    }
   } catch (error) {
     console.log(error);
     res.status(error?.status || 500).json({ 

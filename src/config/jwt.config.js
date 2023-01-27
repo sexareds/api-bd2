@@ -21,5 +21,5 @@ const getTokenData = (token) => {
 
 export {
     getToken,
-    getTokenData
+    getTokenData,
 };
